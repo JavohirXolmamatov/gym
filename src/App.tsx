@@ -1,9 +1,11 @@
-import { Button } from "@/components/ui/button";
+import Navbar from "./components/shared/navbar";
+import Home from "./pages/home";
 
 function App() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center">
-      <Button variant={"link"}>Click me</Button>
+    <div>
+      <Navbar />
+      <Home />
     </div>
   );
 }
