@@ -7,7 +7,7 @@ import { useAuthStateStore } from "@/store/auts-store";
 const Auth = () => {
   const { authState } = useAuthStateStore();
   return (
-    <div className="h-screen full bg-linear-to-t from-foreground to-background flex justify-center items-center">
+    <div className="h-screen w-full bg-linear-to-t from-foreground to-background flex justify-center items-center">
       <Card className="w-1/3 p-8">
         {authState === "login" && <Login />}
         {authState === "register" && <Register />}
