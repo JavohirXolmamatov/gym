@@ -1,4 +1,3 @@
-import { useAuthStateStore } from "@/store/auts-store";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -14,20 +13,43 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/firebase";
+import { useAuthState } from "@/store/auts-store";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { RiAlertLine } from "react-icons/ri";
+import { toast } from "sonner";
+
 const Register = () => {
-  const { setAuthState } = useAuthStateStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState("");
+
+  const { setAuth } = useAuthState();
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
+    defaultValues: { email: "", password: "" },
   });
 
   const handleSubmit = async (values: z.infer<typeof RegisterSchema>) => {
-    console.log(values);
+    const { email, password } = values;
+    setIsLoading(true);
+    try {
+      const res = await createUserWithEmailAndPassword(auth, email, password);
+      navigate("/");
+      console.log(res);
+      toast.success("Register successful");
+    } catch (error) {
+      const result = error as Error;
+      setIsError(result.message);
+      console.log(isError);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -37,12 +59,19 @@ const Register = () => {
         Already have an account?{" "}
         <span
           className="text-blue-500 cursor-pointer hover:underline"
-          onClick={() => setAuthState("login")}
+          onClick={() => setAuth("login")}
         >
           Sign in
         </span>
       </p>
       <Separator className="my-3" />
+      {isError && (
+        <Alert variant="destructive">
+          <RiAlertLine className="mr-2" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{isError}</AlertDescription>
+        </Alert>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
@@ -56,6 +85,7 @@ const Register = () => {
                     {...field}
                     type="email"
                     placeholder="example@gmail.com"
+                    disabled={isLoading}
                   />
                 </FormControl>
                 <FormMessage />
@@ -70,7 +100,12 @@ const Register = () => {
                 <FormItem>
                   <FormLabel htmlFor="password">Password</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" placeholder="******" />
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="******"
+                      disabled={isLoading}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -85,7 +120,12 @@ const Register = () => {
                     Confirm Password
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" placeholder="******" />
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="******"
+                      disabled={isLoading}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -93,7 +133,9 @@ const Register = () => {
             />
           </div>
           <div>
-            <Button className="w-full h-12 mt-4">Submit</Button>
+            <Button disabled={isLoading} className="w-full h-12 mt-4">
+              Submit
+            </Button>
           </div>
         </form>
       </Form>

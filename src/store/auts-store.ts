@@ -4,10 +4,10 @@ type authState = "login" | "register";
 
 interface IAuthStateStore {
   authState: authState;
-  setAuthState: (authState: authState) => void;
+  setAuth: (authState: authState) => void;
 }
 
-export const useAuthStateStore = create<IAuthStateStore>((set) => ({
+export const useAuthState = create<IAuthStateStore>((set) => ({
   authState: "login",
-  setAuthState: (authState) => set({ authState }),
+  setAuth: (authState) => set({ authState }),
 }));
