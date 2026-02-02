@@ -14,3 +14,10 @@ export const RegisterSchema = z
     message: "Passwords don't match",
     path: ["confirmPassword"],
   });
+
+export const TaskSchema = z.object({
+  title: z.string().min(5, {
+    message: "Title must be at least 5 characters",
+  }),
+  // description: z.string().min(1),
+});

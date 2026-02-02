@@ -21,12 +21,14 @@ import { useAuthState } from "@/store/auts-store";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { RiAlertLine } from "react-icons/ri";
 import { toast } from "sonner";
+import { useUserState } from "@/store/user.store";
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState("");
 
   const { setAuth } = useAuthState();
+  const { setUser } = useUserState();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
@@ -39,8 +41,8 @@ const Register = () => {
     setIsLoading(true);
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
+      setUser(res.user);
       navigate("/");
-      console.log(res);
       toast.success("Register successful");
     } catch (error) {
       const result = error as Error;
