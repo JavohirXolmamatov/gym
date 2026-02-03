@@ -7,17 +7,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type z from "zod";
 import FillLoading from "../shared/fill-loading";
+import type { ITask } from "../types";
+import { useEffect } from "react";
 
 interface TaskFormProps {
   onClose: () => void;
   handler?: (data: z.infer<typeof TaskSchema>) => Promise<void>;
+  initialData?: ITask | null;
 }
 
-const TaskForm = ({ onClose, handler }: TaskFormProps) => {
+const TaskForm = ({ onClose, handler, initialData }: TaskFormProps) => {
   const form = useForm<z.infer<typeof TaskSchema>>({
     resolver: zodResolver(TaskSchema),
     defaultValues: { title: "" },
   });
+
   const {
     register,
     handleSubmit,
@@ -25,9 +29,17 @@ const TaskForm = ({ onClose, handler }: TaskFormProps) => {
     reset,
   } = form;
 
+  // Edit mode uchun form populate qilish
+  useEffect(() => {
+    if (initialData) {
+      reset({ title: initialData.title });
+    } else {
+      reset({ title: "" });
+    }
+  }, [initialData, reset]);
+
   const onSubmit = async (data: z.infer<typeof TaskSchema>) => {
     if (!handler) return;
-
     try {
       await handler(data);
       reset();
@@ -36,6 +48,7 @@ const TaskForm = ({ onClose, handler }: TaskFormProps) => {
       console.error("Error submitting form:", error);
     }
   };
+
   return (
     <>
       {isSubmitting && <FillLoading />}

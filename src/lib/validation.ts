@@ -19,5 +19,6 @@ export const TaskSchema = z.object({
   title: z.string().min(5, {
     message: "Title must be at least 5 characters",
   }),
+  id: z.string().optional(),
   // description: z.string().min(1),
 });
