@@ -1,8 +1,11 @@
 export interface ITask {
-  endTime: number;
+  endTime: number | null;
   id: string;
-  startTime: number;
-  status: boolean;
+  startTime: number | null;
+  totalTime: number | null;
+  status: TaskStatus;
   title: string;
   userId: string;
 }
+
+export type TaskStatus = "unstarted" | "paused" | "in_progress";

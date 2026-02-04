@@ -29,10 +29,11 @@ export const addTask = async (
   const docRef = await addDoc(collection(db, "tasks"), {
     // id: uuidv4(),
     title: data.title,
-    status: false,
+    status: "unstarted",
     startTime: null,
     endTime: null,
     userId: data.userId,
+    totalTime: null,
   });
   return docRef;
 };
@@ -45,7 +46,7 @@ export const updateTask = async (data: { id: string; title: string }) => {
 };
 
 export const deleteTask = async (id: string) => {
-  console.log("API: Deleting task with ID:", id); // Debug
+  // console.log("API: Deleting task with ID:", id); // Debug
   const taskRef = doc(db, "tasks", id);
   await deleteDoc(taskRef);
   return id;
