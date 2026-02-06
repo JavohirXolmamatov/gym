@@ -23,13 +23,18 @@ const UserBox = () => {
     });
   };
 
+  const name =
+    user?.displayName?.trim() || user?.email?.split("@")[0] || "User";
+
+  const initials = name.slice(0, 1).toUpperCase(); // yoki 2 ta harf: slice(0,2)
+
   if (!user) return <Loader2 className="animate-spin" />;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar>
           <AvatarImage src={user?.photoURL!} />
-          <AvatarFallback>{user?.displayName![0]}</AvatarFallback>
+          <AvatarFallback>{initials || null}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
