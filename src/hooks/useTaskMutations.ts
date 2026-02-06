@@ -9,6 +9,7 @@ export const useTaskMutations = (userId?: string) => {
     mutationFn: addTask,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tasks", userId] });
+      qc.invalidateQueries({ queryKey: ["tasks-data", userId] });
       toast.success("Task created successfully");
     },
     onError: (error) => {
@@ -21,6 +22,7 @@ export const useTaskMutations = (userId?: string) => {
     mutationFn: updateTask,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tasks", userId] });
+      qc.invalidateQueries({ queryKey: ["tasks-data", userId] });
       toast.success("Task updated successfully");
     },
     onError: (error) => {
@@ -33,6 +35,7 @@ export const useTaskMutations = (userId?: string) => {
     mutationFn: deleteTask,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tasks", userId] });
+      qc.invalidateQueries({ queryKey: ["tasks-data", userId] });
       toast.success("Task deleted successfully");
     },
     onError: (error) => {

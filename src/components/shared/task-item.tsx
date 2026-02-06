@@ -29,6 +29,7 @@ const TaskItem = ({ task, onDelete, onEdit }: typeof taskItemProps) => {
     try {
       await updateDoc(ref, { status: "in_progress", startTime: Date.now() });
       queryClient.invalidateQueries({ queryKey: ["tasks", task.userId] });
+      queryClient.invalidateQueries({ queryKey: ["tasks-data", task.userId] });
     } catch (error) {
       toast.error("Failed to start task");
     } finally {
@@ -47,6 +48,7 @@ const TaskItem = ({ task, onDelete, onEdit }: typeof taskItemProps) => {
         totalTime: newTotalTime,
       });
       queryClient.invalidateQueries({ queryKey: ["tasks", task.userId] });
+      queryClient.invalidateQueries({ queryKey: ["tasks-data", task.userId] });
     } catch (error) {
       toast.error("Failed to pause task");
     } finally {

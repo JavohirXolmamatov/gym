@@ -1,8 +1,16 @@
+export interface ITaskData {
+  monthTotal: number;
+  weekTotal: number;
+  totalyear?: number;
+  tasks: ITask[];
+  total: number;
+}
+
 export interface ITask {
-  endTime: number | null;
+  endTime: number;
   id: string;
-  startTime: number | null;
-  totalTime: number | null;
+  startTime: number;
+  totalTime: number;
   status: TaskStatus;
   title: string;
   userId: string;

@@ -1,4 +1,5 @@
 import TaskForm from "@/components/forms/task-form";
+import { TaskService } from "@/components/service/task.service";
 import FillLoading from "@/components/shared/fill-loading";
 import TaskItem from "@/components/shared/task-item";
 import type { ITask } from "@/components/types";
@@ -16,8 +17,11 @@ import { useTaskMutations } from "@/hooks/useTaskMutations";
 import { useTasks } from "@/hooks/useTasks";
 import type { TaskSchema } from "@/lib/validation";
 import { useUserState } from "@/store/user.store";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { addMilliseconds, addMinutes, format } from "date-fns";
 import { BadgePlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import z from "zod";
 
@@ -28,6 +32,20 @@ const Dashboard = () => {
 
   const { data: tasks, isLoading } = useTasks(user?.uid);
   const { add, remove, update } = useTaskMutations(user?.uid);
+
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    !user && navigate("/");
+  }, [user]);
+
+  const { isPending, data } = useQuery({
+    queryKey: ["tasks-data", user?.uid],
+    queryFn: TaskService.getTasks,
+    enabled: !!user,
+    // refetchOnWindowFocus: false,
+  });
 
   const onAdd = async (data: z.infer<typeof TaskSchema>) => {
     if (!user) {
@@ -40,6 +58,7 @@ const Dashboard = () => {
         ...data,
         userId: user.uid,
       });
+      qc.invalidateQueries({ queryKey: ["tasks-data", user.uid] });
       setOpen(false);
     } catch (error) {
       console.error("Error adding task:", error);
@@ -55,6 +74,7 @@ const Dashboard = () => {
         id: editingTask.id,
         title: data.title,
       });
+      qc.invalidateQueries({ queryKey: ["tasks-data", user?.uid] });
       setEditingTask(null);
       setOpen(false);
     } catch (error) {
@@ -65,9 +85,19 @@ const Dashboard = () => {
   const onDelete = async (id: string) => {
     try {
       await remove.mutateAsync(id);
+      qc.invalidateQueries({ queryKey: ["tasks-data", user?.uid] });
     } catch (error) {
       console.error("Error deleting task:", error);
     }
+  };
+
+  const formatDate = (time: number) => {
+    const date = addMilliseconds(new Date(0), time);
+    const formattedDate = format(
+      addMinutes(date, date.getTimezoneOffset()),
+      "HH:mm:ss",
+    );
+    return formattedDate;
   };
 
   return (
@@ -131,15 +161,41 @@ const Dashboard = () => {
         <div className="flex flex-col space-y-3 relative w-full">
           <div className="p-4 rounded-md bg-linear-to-r from-blue-900 to-background relative h-24">
             <div className="text-2xl font-bold">Total week</div>
-            <div className="text-3xl font-bold">02:08:47</div>
+            {isPending ? (
+              <FillLoading />
+            ) : (
+              data && (
+                <>
+                  <div className="text-3xl font-bold">
+                    {formatDate(data?.weekTotal)}
+                  </div>
+                </>
+              )
+            )}
           </div>
           <div className="p-4 rounded-md bg-linear-to-r from-secondary to-background relative h-24">
-            <div className="text-2xl font-bold">Total week</div>
-            <div className="text-3xl font-bold">02:08:47</div>
+            <div className="text-2xl font-bold">Total month</div>
+            {isPending ? (
+              <FillLoading />
+            ) : (
+              data && (
+                <div className="text-3xl font-bold">
+                  {formatDate(data.monthTotal)}
+                </div>
+              )
+            )}
           </div>
           <div className="p-4 rounded-md bg-linear-to-r from-destructive to-background relative h-24">
-            <div className="text-2xl font-bold">Total week</div>
-            <div className="text-3xl font-bold">02:08:47</div>
+            <div className="text-2xl font-bold">Total time</div>
+            {isPending ? (
+              <FillLoading />
+            ) : (
+              data && (
+                <div className="text-3xl font-bold">
+                  {formatDate(data.total)}
+                </div>
+              )
+            )}
           </div>
         </div>
       </div>
